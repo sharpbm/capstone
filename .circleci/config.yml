@@ -1,13 +1,12 @@
 version: 2.1
 
 jobs:
+
   test-build:
     docker:
       - image: python:3.7.3-stretch
-
     steps:
       - checkout
-
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
@@ -32,8 +31,35 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
+          
+  build-upload-docker:
+    docker:
+      - image: circleci/golang:1.16
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 20.10.14
+
+      - run:
+          name: Build docker container
+          command: |
+            docker build --tag=$DOCKER_IMAGE_NAME .
+            docker image ls
+            
+     - run:
+          name: Upload Docker to Dockerhub
+          command: |
+            docker tag $DOCKER_IMAGE_NAME $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_WORKFLOW_ID
+            docker login -u="$DOCKERHUB_USERNAME" -p="$DOCKERHUB_PASSWORD"
+            docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_WORKFLOW_ID
+            
 
 workflows:
   default:
     jobs:
       - test-build
+      - build-upload-docker:
+          requires:
+            - test-build      
