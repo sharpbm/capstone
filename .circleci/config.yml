@@ -38,17 +38,17 @@ jobs:
 
     steps:
       - checkout
-
+      
       - setup_remote_docker:
           version: 20.10.14
-
+          
       - run:
           name: Build docker container
           command: |
             docker build --tag=$DOCKER_IMAGE_NAME .
             docker image ls
             
-     - run:
+      - run:
           name: Upload Docker to Dockerhub
           command: |
             docker tag $DOCKER_IMAGE_NAME $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_WORKFLOW_ID
