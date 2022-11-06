@@ -66,7 +66,7 @@ jobs:
             docker login -u="$DOCKERHUB_USERNAME" -p="$DOCKERHUB_PASSWORD"
             docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_WORKFLOW_ID
             
-  create-k8s-cluster:
+  create-eks-cluster:
       docker:
         - image: amazon/aws-cli
       steps:
