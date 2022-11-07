@@ -96,7 +96,7 @@ jobs:
             command: |
               CLUSTER_EXIST=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text --region us-east-1)
               echo "CLUSTER_EXIST: " ${CLUSTER_EXIST}
-              if [[ "${CLUSTER_EXIST}" = "None" ]] 
+              if [[ "${CLUSTER_EXIST}" = "" ]] 
               then 
                 eksctl create cluster --name udacity-capstone \
                 --nodegroup-name workers \
