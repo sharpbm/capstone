@@ -103,7 +103,7 @@ jobs:
                 --node-type t2.medium \
                 --nodes 2 \
                 --nodes-min 1 \
-                --nodes-max 3 \
+                --nodes-max 3
               fi
               sleep 2m
 
