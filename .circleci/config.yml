@@ -116,7 +116,7 @@ workflows:
       # - build-upload-docker:
       #     requires:
       #       - run-lint
-      - create-eks-cluster:
+      - create-eks-cluster
           # requires:
           #   - build-upload-docker
         
