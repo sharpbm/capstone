@@ -71,32 +71,22 @@ jobs:
         - image: amazon/aws-cli
       steps:
         - checkout
-        
         - run:
             name: Install tar utility
             command: |
               yum install -y tar gzip        
-        
         - run:
-            name: Install eks dependencies
+            name: Install eksctl
             command: |
-              curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
-              chmod +x ./aws-iam-authenticator
-              mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-              echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
-              aws-iam-authenticator help
               curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
               mv /tmp/eksctl /usr/local/bin
               eksctl version
-              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-              install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-              kubectl version --client
         - run:
             name: Create eks cluster 
             command: |
-              CLUSTER_EXIST=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
-              echo "CLUSTER_EXIST: " ${CLUSTER_EXIST}
-              if [[ "${CLUSTER_EXIST}" = "" ]] 
+              CLUSTER_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
+              echo "CLUSTER_ARN: " ${CLUSTER_ARN}
+              if [[ "${CLUSTER_ARN}" = "" ]] 
               then 
                 eksctl create cluster --name udacity-capstone \
                 --nodegroup-name workers \
@@ -105,16 +95,58 @@ jobs:
                 --nodes-min 1 \
                 --nodes-max 3
               fi
-              sleep 2m
+              sleep 1m
+
+
+  deply-app:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+        - run:
+            name: Install tar utility
+            command: |
+              yum install -y tar gzip        
+      - run:
+          name: Install K8s dependencies
+          command: |
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            chmod +x ./aws-iam-authenticator
+            mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            mv /tmp/eksctl /usr/local/bin
+            eksctl version
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
+            CLUSTER_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
+            echo "CLUSTER_ARN: " ${CLUSTER_ARN}
+            aws eks update-kubeconfig --name udacity-capstone
+            kubectl config use-context ${CLUSTER_ARN}
+      - run: 
+          name: deploy app & rollout
+          command: |
+            kubectl apply -f deployment.yml
+            kubectl rollout restart deployments/capstone-app
+            kubectl get deployments            
+            kubectl get pods
+            kubectl get svc
+            sleep 1m
+            URL=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
+            echo "URL: " ${URL}
 
 workflows:
   default:
     jobs:
-      # - run-lint
-      # - build-upload-docker:
-      #     requires:
-      #       - run-lint
-      - create-eks-cluster
-          # requires:
-          #   - build-upload-docker
+      - run-lint
+      - build-upload-docker:
+          requires:
+            - run-lint
+      - create-eks-cluster:
+          requires:
+            - build-upload-docker
+      - deply-app:
+          requires:
+            - create-eks-cluster
         
