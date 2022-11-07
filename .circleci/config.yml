@@ -112,11 +112,11 @@ jobs:
 workflows:
   default:
     jobs:
-      - run-lint
-      - build-upload-docker:
-          requires:
-            - run-lint
+      # - run-lint
+      # - build-upload-docker:
+      #     requires:
+      #       - run-lint
       - create-eks-cluster:
-          requires:
-            - build-upload-docker
+          # requires:
+          #   - build-upload-docker
         
