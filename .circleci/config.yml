@@ -89,16 +89,14 @@ jobs:
               echo "CLUSTER_ARN: " ${CLUSTER_ARN}
               if [[ "${CLUSTER_ARN}" = "" ]] 
               then 
-              
+
                 eksctl create cluster --name udacity-capstone \
                 --nodegroup-name workers \
                 --node-type t2.medium \
                 --nodes 2 \
                 --nodes-min 1 \
                 --nodes-max 2 \
-                --ssh-access=true \
-                --ssh-public-key=udacity-capstone                
-                
+
                 sleep 1m  
                 
               fi
