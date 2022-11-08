@@ -132,10 +132,8 @@ jobs:
       - run: 
           name: deploy app & rollout
           command: |
-            kubectl delete deployment capstone-app
-            kubectl delete svc capstone-app
             kubectl apply -f deployment.yml
-            kubectl rollout status deployment capstone-app
+            kubectl rollout restart deployments/capstone-app
             kubectl get deployments            
             kubectl get pods
             kubectl get svc
@@ -150,7 +148,7 @@ workflows:
       # - build-upload-docker:
       #     requires:
       #       - run-lint
-      - create-eks-cluster
+      #- create-eks-cluster
           # requires:
           #   - build-upload-docker
       - deploy-app:
