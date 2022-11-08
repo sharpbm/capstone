@@ -93,12 +93,12 @@ jobs:
                 --node-type t2.medium \
                 --nodes 2 \
                 --nodes-min 1 \
-                --nodes-max 3
+                --nodes-max 2
               fi
               sleep 1m
 
 
-  deply-app:
+  deploy-app:
     docker:
       - image: amazon/aws-cli
     steps:
@@ -108,7 +108,7 @@ jobs:
           command: |
             yum install -y tar gzip        
       - run:
-          name: Install K8s dependencies
+          name: Install eks dependencies
           command: |
             curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
             chmod +x ./aws-iam-authenticator
@@ -128,13 +128,13 @@ jobs:
           name: deploy app & rollout
           command: |
             kubectl apply -f deployment.yml
-            kubectl rollout restart deployments/capstone-app
             kubectl get deployments            
             kubectl get pods
             kubectl get svc
-            sleep 1m
+            sleep 2m
             URL=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
             echo "URL: " ${URL}
+            curl -I ${URL}:8080
 
 workflows:
   default:
@@ -146,7 +146,7 @@ workflows:
       - create-eks-cluster:
           requires:
             - build-upload-docker
-      - deply-app:
+      - deploy-app:
           requires:
             - create-eks-cluster
         
