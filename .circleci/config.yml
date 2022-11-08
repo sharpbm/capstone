@@ -151,7 +151,7 @@ workflows:
       #- create-eks-cluster
           # requires:
           #   - build-upload-docker
-      - deploy-app:
-          requires:
-            - create-eks-cluster
+      - deploy-app
+          # requires:
+          #   - create-eks-cluster
         
