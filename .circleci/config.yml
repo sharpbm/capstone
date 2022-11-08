@@ -147,12 +147,12 @@ workflows:
   default:
     jobs:
       - run-lint
-      - build-upload-docker:
-          requires:
-            - run-lint
-      - create-eks-cluster:
-          requires:
-            - build-upload-docker
+      # - build-upload-docker:
+      #     requires:
+      #       - run-lint
+      - create-eks-cluster
+          # requires:
+          #   - build-upload-docker
       - deploy-app:
           requires:
             - create-eks-cluster
