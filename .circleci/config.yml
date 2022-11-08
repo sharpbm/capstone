@@ -137,6 +137,8 @@ jobs:
             kubectl get deployments            
             kubectl get pods
             kubectl get svc
+            sleep 4m
+            kubectl get svc
             loadbalancer=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
             echo "loadbalancer: " ${loadbalancer}
             curl -I ${loadbalancer}:8080
