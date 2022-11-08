@@ -128,6 +128,8 @@ jobs:
       - run: 
           name: deploy app & rollout
           command: |
+            kubectl delete deployment capstone-app
+            kubectl delete svc capstone-app
             kubectl apply -f deployment.yml
             kubectl get deployments            
             kubectl get pods
