@@ -89,14 +89,20 @@ jobs:
               echo "CLUSTER_ARN: " ${CLUSTER_ARN}
               if [[ "${CLUSTER_ARN}" = "" ]] 
               then 
+              
                 eksctl create cluster --name udacity-capstone \
                 --nodegroup-name workers \
                 --node-type t2.medium \
                 --nodes 2 \
                 --nodes-min 1 \
-                --nodes-max 2
+                --nodes-max 2 \
+                --ssh-access=true \
+                --ssh-public-key=udacity-capstone                
+                
+                sleep 1m  
+                
               fi
-              sleep 1m
+              
 
 
   deploy-app:
@@ -131,13 +137,13 @@ jobs:
             kubectl delete deployment capstone-app
             kubectl delete svc capstone-app
             kubectl apply -f deployment.yml
+            kubectl rollout status deployment capstone-app
             kubectl get deployments            
             kubectl get pods
             kubectl get svc
-            sleep 2m
-            URL=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
-            echo "URL: " ${URL}
-            curl -I ${URL}:8080
+            loadbalancer=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
+            echo "loadbalancer: " ${loadbalancer}
+            curl -I ${loadbalancer}:8080
 
 workflows:
   default:
