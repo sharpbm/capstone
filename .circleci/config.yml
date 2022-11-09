@@ -95,7 +95,7 @@ jobs:
                 --node-type t2.medium \
                 --nodes 2 \
                 --nodes-min 1 \
-                --nodes-max 2 \
+                --nodes-max 2
 
                 sleep 1m  
                 
