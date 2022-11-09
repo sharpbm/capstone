@@ -141,7 +141,7 @@ jobs:
             kubectl get svc
             loadbalancer=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
             echo "loadbalancer: " ${loadbalancer}
-            curl -I ${loadbalancer}:8080
+            curl -I ${loadbalancer}:8080/captone-app
 
 workflows:
   default:
