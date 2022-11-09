@@ -135,8 +135,9 @@ jobs:
             kubectl get deployments            
             kubectl get pods
             kubectl get svc
+            kubectl get svc capstone-app -o json
             echo "Waiting for end point..."
-            until [ -n "$(kubectl get svc capstone-app -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" ]; do
+            until [ -n "$(kubectl get svc capstone-app -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')" ]; do
                 echo "Waiting for end point..."
                 sleep 10
             done            
@@ -179,16 +180,16 @@ jobs:
 workflows:
   default:
     jobs:
-      - run-lint
-      - build-upload-docker:
-          requires:
-            - run-lint
-      - create-eks-cluster:
-          requires:
-            - build-upload-docker
-      - deploy-app:
-          requires:
-            - create-eks-cluster
+      # - run-lint
+      # - build-upload-docker:
+      #     requires:
+      #       - run-lint
+      # - create-eks-cluster:
+      #     requires:
+      #       - build-upload-docker
+      - deploy-app
+          # requires:
+          #   - create-eks-cluster
       - smoke-test:
           requires:
             - deploy-app
