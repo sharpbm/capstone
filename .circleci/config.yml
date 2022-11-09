@@ -125,9 +125,8 @@ jobs:
             kubectl apply -f deployment.yml
             kubectl rollout restart deployments/capstone-app
             kubectl get deployments            
-            kubectl get pods
             kubectl get svc
-            #let loadBalancer be in active state
+            echo "lets wait for loadBalancer to be in active state..."
             sleep 3m
             until [ -n "$(kubectl get svc capstone-app -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')" ]; do
                 echo "Waiting for end point..."
