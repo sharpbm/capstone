@@ -101,8 +101,6 @@ jobs:
                 
               fi
               
-
-
   deploy-app:
     docker:
       - image: amazon/aws-cli
@@ -137,9 +135,43 @@ jobs:
             kubectl get deployments            
             kubectl get pods
             kubectl get svc
-            echo "Waiting for LB to be up..."
-            sleep 2m
-            kubectl get svc
+            external_ip=""
+            while [ -z $external_ip ]; do
+              echo "Waiting for end point..."
+              external_ip=$(kubectl get svc capstone-app --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+              [ -z "$external_ip" ] && sleep 10
+            done
+            echo 'End point ready:' && echo $external_ip
+  
+  smoke-test:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip        
+      - run:
+          name: Install eks dependencies
+          command: |
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            chmod +x ./aws-iam-authenticator
+            mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            mv /tmp/eksctl /usr/local/bin
+            eksctl version
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
+            CLUSTER_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
+            echo "CLUSTER_ARN: " ${CLUSTER_ARN}
+            aws eks update-kubeconfig --name udacity-capstone
+            kubectl config use-context ${CLUSTER_ARN}
+      - run: 
+          name: smoke test
+          command: |
             loadbalancer=$(kubectl get svc capstone-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}")
             echo "loadbalancer: " ${loadbalancer}
             curl -I ${loadbalancer}:8080/captone-app
@@ -157,4 +189,8 @@ workflows:
       - deploy-app:
           requires:
             - create-eks-cluster
+      - smoke-test:
+          requires:
+            - deploy-app
+        
         
