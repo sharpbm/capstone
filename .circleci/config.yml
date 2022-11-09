@@ -155,5 +155,5 @@ workflows:
             - build-upload-docker
       - deploy-app:
           requires:
-            - build-upload-docker
+            - create-eks-cluster
         
