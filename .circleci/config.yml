@@ -191,11 +191,6 @@ jobs:
               
                 
               fi
-            
-              # DEVELOPER_VM_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='developer-vm:ARN'].Value" --output text)
-              # echo "DEVELOPER_VM_ARN: " ${DEVELOPER_VM_ARN}
-              # if [[ "${DEVELOPER_VM_ARN}" = "" ]] 
-              # then 
 
 workflows:
   default:
