@@ -170,16 +170,14 @@ jobs:
             
               echo "Checking if stack exists ..."
               
-              # if ! aws cloudformation describe-stacks --stack-name developer-vm ; then            
+              if ! aws cloudformation describe-stacks --stack-name developer-vm ; then            
               
-                # echo "creating developer vm..."
-                # aws cloudformation deploy \
-                # --template-file .circleci/files/developer-vm.yml \
-                # --stack-name developer-vm \
-                # --parameter-overrides ID=developer-vm \
-                # --tags project=developer-vm
+                aws cloudformation deploy \
+                --template-file .circleci/files/developer-vm.yml \
+                --stack-name developer-vm \
+                --parameter-overrides ID=developer-vm \
+                --tags project=developer-vm
                 
-                echo "extrat IP of developer vm..."
                 echo [hosts] > ~/inventory.txt
                 aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -191,7 +189,7 @@ jobs:
                 ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
               
                 
-              # fi
+              fi
 
 workflows:
   default:
@@ -200,12 +198,12 @@ workflows:
       # - build-upload-docker:
       #     requires:
       #       - run-lint
-      - create-eks-cluster
+      # - create-eks-cluster
           # requires:
           #   - build-upload-docker
-      - create-developer-vm:
-          requires:
-            - create-eks-cluster
+      - create-developer-vm
+          # requires:
+          #   - create-eks-cluster
       # - deploy-app:
       #     requires:
       #       - create-developer-vm
