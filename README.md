@@ -20,17 +20,17 @@ This is a simple flasked based python application, deployed on AWS EKS. In this 
 
 # CircleCI Pipeline Environment
 Setup Following Environment Variable
-    * AWS_ACCESS_KEY_ID
-    * AWS_DEFAULT_REGION
-    * AWS_SECRET_ACCESS_KEY
-    * AWS_SESSION_TOKEN
+* AWS_ACCESS_KEY_ID
+* AWS_DEFAULT_REGION
+* AWS_SECRET_ACCESS_KEY
+* AWS_SESSION_TOKEN
 Setup SSH Key For EC2 Login
 
 # CI/CD Jobs
 * run-lint - Lint Python & Docker 
 * build-upload-docker - Build Docker Image & Push it to Docker Hub
 * create-eks-cluster - Create EKS Cluster using EKSCTL
-* create-developer-vm - Create an EC2 VM and install AWSCLI & KUBECTL using Ansible. This VM can be used by developers to interact with EKS Cluster
+* create-developer-vm - Create an EC2 VM and install AWSCLI & KUBECTL using Ansible. Developers can ssh into this VM to interact with EKS Cluster
 * deploy-app - Deploy application on EKS Cluster and expose it through Loadbalancer
 * smoke-test - Test the application is deployed successfully
 
