@@ -34,6 +34,9 @@
       shell: "aws configure set aws_session_token {{ AWS_SESSION_TOKEN }}"
     - name: Set the default.region
       shell: "aws configure set default.region {{ AWS_DEFAULT_REGION }}"
+    - name: Set the default.region
+      shell: "kubectl version"
+      
 
 - name: "Fetch kubectl config"
   hosts: hosts
