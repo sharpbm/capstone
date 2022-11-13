@@ -168,11 +168,10 @@ jobs:
             name: Ensure back-end infrastructure exists
             command: |
             
-              DEVELOPER_VM_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='developer-vm:ARN'].Value" --output text)
-              echo "DEVELOPER_VM_ARN: " ${DEVELOPER_VM_ARN}
-              if [[ "${DEVELOPER_VM_ARN}" = "" ]] 
-              then 
-
+              echo "Checking if stack exists ..."
+              
+              if ! aws cloudformation describe-stacks --stack-name developer-vm ; then            
+              
                 echo "creating developer vm..."
                 aws cloudformation deploy \
                 --template-file .circleci/files/developer-vm.yml \
@@ -189,8 +188,14 @@ jobs:
                 
                 export ANSIBLE_HOST_KEY_CHECKING=False
                 ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
-
+              
+                
               fi
+            
+              # DEVELOPER_VM_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='developer-vm:ARN'].Value" --output text)
+              # echo "DEVELOPER_VM_ARN: " ${DEVELOPER_VM_ARN}
+              # if [[ "${DEVELOPER_VM_ARN}" = "" ]] 
+              # then 
 
 workflows:
   default:
@@ -205,11 +210,11 @@ workflows:
       - create-developer-vm:
           requires:
             - create-eks-cluster
-      - deploy-app:
-          requires:
-            - create-developer-vm
-      - smoke-test:
-          requires:
-            - deploy-app
+      # - deploy-app:
+      #     requires:
+      #       - create-developer-vm
+      # - smoke-test:
+      #     requires:
+      #       - deploy-app
         
         
