@@ -164,7 +164,6 @@ jobs:
               apk add --update ansible
               apk add openssh-client
               pip3 install awscli
-              export ANSIBLE_HOST_KEY_CHECKING=False
         - run:
             name: Ensure back-end infrastructure exists
             command: |
@@ -187,6 +186,7 @@ jobs:
                 cat ~/inventory.txt
                 
                 sleep 1m
+                export ANSIBLE_HOST_KEY_CHECKING=False
                 ansible-playbook -v -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
 
               fi
