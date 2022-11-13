@@ -42,13 +42,12 @@
   become: yes
   vars:
     AWS_DEFAULT_REGION: "{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
-  pre_tasks:
+  tasks:
     - name: Create a kubeconfig file for the cluster
       shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name udacity-capstone"
-  tasks:
     - name: get eks cluster
       shell: |
           CLUSTER_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
           aws eks update-kubeconfig --name udacity-capstone
           kubectl config use-context ${CLUSTER_ARN}
-  
+          kubectl get deployment
