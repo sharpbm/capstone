@@ -185,8 +185,9 @@ jobs:
                 --filters "Name=tag:Name,Values=developer-vm" \
                 --output text >> ~/inventory.txt
                 cat ~/inventory.txt
-
-                ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
+                
+                sleep 1m
+                ansible-playbook -v -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
 
               fi
 
