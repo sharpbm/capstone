@@ -148,14 +148,57 @@ jobs:
             echo "loadbalancer: " ${loadbalancer}
             curl -I ${loadbalancer}:8080/captone-app
 
+
+  create-developer-vm:
+      docker:
+        - image: python:3.7-alpine3.11
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: |
+              apk add curl
+              apk add --upgrade bash
+              apk add --update ansible
+              apk add openssh-client
+              pip3 install awscli
+        - run:
+            name: Ensure back-end infrastructure exists
+            command: |
+            
+              DEVELOPER-VM_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='developer-vm:ARN'].Value" --output text)
+              echo "DEVELOPER-VM_ARN: " ${DEVELOPER-VM_ARN}
+              if [[ "${DEVELOPER-VM_ARN}" = "" ]] 
+              then 
+
+                aws cloudformation deploy \
+                --template-file .circleci/files/developer-vm.yml \
+                --stack-name developer-vm \
+                --parameter-overrides ID=developer-vm \
+                --tags project=developer-vm
+                
+                aws ec2 describe-instances \
+                --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                --filters "Name=tag:Name,Values=developer-vm" \
+                --output text >> ~/project/.circleci/ansible/inventory.txt
+                cat ~/project/.circleci/ansible/inventory.txt
+                
+                export ANSIBLE_HOST_KEY_CHECKING=False
+                ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
+
+              fi
+
 workflows:
   default:
     jobs:
-      - run-lint
-      - build-upload-docker:
-          requires:
-            - run-lint
-      - create-eks-cluster:
+      # - run-lint
+      # - build-upload-docker:
+      #     requires:
+      #       - run-lint
+      - create-eks-cluster
+          # requires:
+          #   - build-upload-docker
+      - create-developer-vm:
           requires:
             - build-upload-docker
       - deploy-app:
