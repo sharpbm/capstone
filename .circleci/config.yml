@@ -154,6 +154,8 @@ jobs:
         - image: python:3.7-alpine3.11
       steps:
         - checkout
+        - add_ssh_keys:
+            fingerprints: ["9d:78:8d:b2:54:b0:a8:6b:52:3d:33:c0:6b:d1:95:20"]        
         - run:
             name: Install dependencies
             command: |
@@ -166,9 +168,9 @@ jobs:
             name: Ensure back-end infrastructure exists
             command: |
             
-              DEVELOPER-VM_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='developer-vm:ARN'].Value" --output text)
-              echo "DEVELOPER-VM_ARN: " ${DEVELOPER-VM_ARN}
-              if [[ "${DEVELOPER-VM_ARN}" = "" ]] 
+              DEVELOPER_VM_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='developer-vm:ARN'].Value" --output text)
+              echo "DEVELOPER_VM_ARN: " ${DEVELOPER_VM_ARN}
+              if [[ "${DEVELOPER_VM_ARN}" = "" ]] 
               then 
 
                 aws cloudformation deploy \
