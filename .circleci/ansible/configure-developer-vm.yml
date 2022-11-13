@@ -45,3 +45,10 @@
   pre_tasks:
     - name: Create a kubeconfig file for the cluster
       shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name udacity-capstone"
+  tasks:
+    - name: get eks cluster
+      shell: |
+          CLUSTER_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
+          aws eks update-kubeconfig --name udacity-capstone
+          kubectl config use-context ${CLUSTER_ARN}
+  
