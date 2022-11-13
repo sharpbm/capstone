@@ -186,7 +186,7 @@ jobs:
                 cat ~/inventory.txt
                 
                 export ANSIBLE_HOST_KEY_CHECKING=False
-                ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
+                ansible-playbook -v -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
               
                 
               fi
