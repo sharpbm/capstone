@@ -12,7 +12,6 @@
         update_cache: yes
 
   roles:
-    - awscli
     - kubectl
 
 - name: "Authenticate AWS CLI with AWS"
