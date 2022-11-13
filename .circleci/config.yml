@@ -164,6 +164,7 @@ jobs:
               apk add --update ansible
               apk add openssh-client
               pip3 install awscli
+              export ANSIBLE_HOST_KEY_CHECKING=False
         - run:
             name: Ensure back-end infrastructure exists
             command: |
@@ -184,31 +185,29 @@ jobs:
                 --filters "Name=tag:Name,Values=developer-vm" \
                 --output text >> ~/inventory.txt
                 cat ~/inventory.txt
-                
-                export ANSIBLE_HOST_KEY_CHECKING=False
-                ansible-playbook -v -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
-              
-                
+
+                ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
+
               fi
 
 workflows:
   default:
     jobs:
-      # - run-lint
-      # - build-upload-docker:
-      #     requires:
-      #       - run-lint
-      # - create-eks-cluster
-          # requires:
-          #   - build-upload-docker
-      - create-developer-vm
-          # requires:
-          #   - create-eks-cluster
-      # - deploy-app:
-      #     requires:
-      #       - create-developer-vm
-      # - smoke-test:
-      #     requires:
-      #       - deploy-app
+      - run-lint
+      - build-upload-docker:
+          requires:
+            - run-lint
+      - create-eks-cluster:
+          requires:
+            - build-upload-docker
+      - create-developer-vm:
+          requires:
+            - create-eks-cluster
+      - deploy-app:
+          requires:
+            - create-developer-vm
+      - smoke-test:
+          requires:
+            - deploy-app
         
         

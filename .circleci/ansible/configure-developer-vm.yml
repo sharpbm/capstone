@@ -50,4 +50,3 @@
           CLUSTER_ARN=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-udacity-capstone-cluster::ARN'].Value" --output text)
           aws eks update-kubeconfig --name udacity-capstone
           kubectl config use-context ${CLUSTER_ARN}
-          kubectl get deployment
