@@ -173,12 +173,14 @@ jobs:
               if [[ "${DEVELOPER_VM_ARN}" = "" ]] 
               then 
 
+                echo "creating developer vm..."
                 aws cloudformation deploy \
                 --template-file .circleci/files/developer-vm.yml \
                 --stack-name developer-vm \
                 --parameter-overrides ID=developer-vm \
                 --tags project=developer-vm
                 
+                echo "extrat IP of developer vm..."
                 aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:Name,Values=developer-vm" \
