@@ -200,10 +200,10 @@ workflows:
           #   - build-upload-docker
       - create-developer-vm:
           requires:
-            - build-upload-docker
+            - create-eks-cluster
       - deploy-app:
           requires:
-            - create-eks-cluster
+            - create-developer-vm
       - smoke-test:
           requires:
             - deploy-app
