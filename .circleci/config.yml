@@ -168,15 +168,15 @@ jobs:
             name: Ensure back-end infrastructure exists
             command: |
             
-              echo "Checking if stack exists ..."
+              # echo "Checking if stack exists ..."
               
-              if ! aws cloudformation describe-stacks --stack-name developer-vm ; then            
+              # if ! aws cloudformation describe-stacks --stack-name developer-vm ; then            
               
-                aws cloudformation deploy \
-                --template-file .circleci/files/developer-vm.yml \
-                --stack-name developer-vm \
-                --parameter-overrides ID=developer-vm \
-                --tags project=developer-vm
+              #   aws cloudformation deploy \
+              #   --template-file .circleci/files/developer-vm.yml \
+              #   --stack-name developer-vm \
+              #   --parameter-overrides ID=developer-vm \
+              #   --tags project=developer-vm
                 
                 echo [hosts] > ~/inventory.txt
                 aws ec2 describe-instances \
@@ -186,10 +186,10 @@ jobs:
                 cat ~/inventory.txt
                 
                 export ANSIBLE_HOST_KEY_CHECKING=False
-                ansible-playbook -i -vvv ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
+                ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
               
                 
-              fi
+              # fi
 
 workflows:
   default:
