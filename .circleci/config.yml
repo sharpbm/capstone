@@ -180,14 +180,15 @@ jobs:
                 --tags project=developer-vm
                 
                 echo "extrat IP of developer vm..."
+                echo [hosts] > ~/inventory.txt
                 aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:Name,Values=developer-vm" \
-                --output text >> ~/project/.circleci/ansible/inventory.txt
-                cat ~/project/.circleci/ansible/inventory.txt
+                --output text >> ~/inventory.txt
+                cat ~/inventory.txt
                 
                 export ANSIBLE_HOST_KEY_CHECKING=False
-                ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
+                ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-developer-vm.yml
               
                 
               fi
